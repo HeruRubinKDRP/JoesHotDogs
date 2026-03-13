@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Joe's Menu</title>
+</head>
+<body>
+<h1>Joe's Menu</h1>
+<menu id="FoodMenu"></menu>
+<label for="MenuItemSelect">Choose an item:</label>
+<select id="MenuItemSelect"></select>
+<button id="AddToCartButton" type="button">Add to Cart</button>
+<div id="ShoppingCart"></div>
+<button id="CheckoutButton" type="button">Checkout</button>
+
+<script>
+    function FoodMenuItem(itemName, itemPrice) {
+        this.name = itemName;
+        this.price = itemPrice;
+        this.quantity = 0;
+    }
+
+    const menuItems = [
+        new FoodMenuItem('Hot Dog', 4.0),
+        new FoodMenuItem('Soda', 3.5),
+        new FoodMenuItem('Fries', 1.5),
+        new FoodMenuItem('Sauerkraut', 1.0)
+    ];
+
+    const foodMenu = document.getElementById('FoodMenu');
+    const menuItemSelect = document.getElementById('MenuItemSelect');
+    const addToCartButton = document.getElementById('AddToCartButton');
+    const shoppingCart = document.getElementById('ShoppingCart');
+    const checkoutButton = document.getElementById('CheckoutButton');
+
+    function renderFoodMenu(items) {
+        const menuFragment = document.createDocumentFragment();
+
+        foodMenu.replaceChildren();
+
+        items.forEach((menuItemInstance) => {
+            const menuItemElement = document.createElement('li');
+
+            menuItemElement.textContent = `${menuItemInstance.name} - $${menuItemInstance.price.toFixed(2)}`;
+            menuFragment.appendChild(menuItemElement);
+        });
+
+        foodMenu.appendChild(menuFragment);
+    }
+
+    function populateMenuItemSelect(items) {
+        const selectFragment = document.createDocumentFragment();
+
+        // so we don't get duplicate options if we rerun populateMenu func
+        menuItemSelect.replaceChildren();
+
+        items.forEach((menuItemInstance) => {
+            const optionElement = document.createElement('option');
+            optionElement.value = menuItemInstance.price.toFixed(2);
+            optionElement.dataset.itemName = menuItemInstance.name;
+            optionElement.textContent = menuItemInstance.name;
+            selectFragment.appendChild(optionElement);
+        });
+
+        menuItemSelect.appendChild(selectFragment);
+    }
+
+    function renderShoppingCart(items) {
+        const cartFragment = document.createDocumentFragment();
+        const cartTitle = document.createElement('p');
+        const purchasedItems = items.filter((menuItemInstance) => menuItemInstance.quantity > 0);
+
+        shoppingCart.replaceChildren();
+        cartTitle.textContent = 'Shopping Cart';
+        cartFragment.appendChild(cartTitle);
+
+        if (purchasedItems.length === 0) {
+            const emptyCartMessage = document.createElement('p');
+
+            emptyCartMessage.textContent = 'Your cart is empty.';
+            cartFragment.appendChild(emptyCartMessage);
+            shoppingCart.appendChild(cartFragment);
+            return;
+        }
+
+        const cartList = document.createElement('ul');
+
+        purchasedItems.forEach((menuItemInstance) => {
+            const cartListItem = document.createElement('li');
+            const lineTotal = menuItemInstance.quantity * menuItemInstance.price;
+
+            cartListItem.textContent = `${menuItemInstance.name} x ${menuItemInstance.quantity} = $${lineTotal.toFixed(2)}`;
+            cartList.appendChild(cartListItem);
+        });
+
+        cartFragment.appendChild(cartList);
+        shoppingCart.appendChild(cartFragment);
+    }
+
+    function addSelectedItemToCart(items) {
+        const selectedOption = menuItemSelect.options[menuItemSelect.selectedIndex];
+
+        if (!selectedOption) {
+            return;
+        }
+
+        const selectedItemName = selectedOption.dataset.itemName;
+        const selectedMenuItem = items.find((menuItemInstance) => menuItemInstance.name === selectedItemName);
+
+        if (!selectedMenuItem) {
+            return;
+        }
+
+        selectedMenuItem.quantity += 1;
+        renderShoppingCart(items);
+    }
+
+    function checkoutFoodOrder(items) {
+        const purchasedItems = items.filter((menuItemInstance) => menuItemInstance.quantity > 0);
+
+        if (purchasedItems.length === 0) {
+            alert('Your cart is empty.');
+            return;
+        }
+
+        let orderTotal = 0;
+        const summaryLines = purchasedItems.map((menuItemInstance) => {
+            const itemTotal = menuItemInstance.quantity * menuItemInstance.price;
+
+            orderTotal += itemTotal;
+            return `${menuItemInstance.name}: ${menuItemInstance.quantity} x $${menuItemInstance.price.toFixed(2)} = $${itemTotal.toFixed(2)}`;
+        });
+
+        summaryLines.push(`Order Total: $${orderTotal.toFixed(2)}`);
+        alert(summaryLines.join('\n'));
+
+        items.forEach((menuItemInstance) => {
+            menuItemInstance.quantity = 0;
+        });
+
+        renderShoppingCart(items);
+    }
+
+    addToCartButton.addEventListener('click', () => {
+        addSelectedItemToCart(menuItems);
+    });
+
+    checkoutButton.addEventListener('click', () => {
+        checkoutFoodOrder(menuItems);
+    });
+
+    renderFoodMenu(menuItems);
+    populateMenuItemSelect(menuItems);
+    renderShoppingCart(menuItems);
+</script>
+</body>
+</html>

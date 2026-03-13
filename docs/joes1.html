@@ -6,9 +6,149 @@
 </head>
 <body>
 <h1>Joe's Menu</h1>
-
+<menu id="FoodMenu"></menu>
+<menu id="SecondFoodMenu"></menu>
+<menu id="ThirdFoodMenu"></menu>
 <script>
-    document.write("Hello World!");
+    const menuItems = {
+        'Hot Dog': 4.0,
+        'Soda': 3.5,
+        'Fries': 1.5,
+        'Sauerkraut': 1.0
+    };
+
+    const foodMenu = document.getElementById('FoodMenu');
+
+    function renderMenu(items) {
+        const menuFragment = document.createDocumentFragment();
+        const menuEntries = Object.entries(items);
+
+        foodMenu.innerHTML = '';
+
+        menuEntries.forEach(([itemName, price]) => {
+            const menuItem = document.createElement('li');
+
+            menuItem.textContent = `${itemName} - $${price.toFixed(2)}`;
+            menuFragment.appendChild(menuItem);
+        });
+
+        foodMenu.appendChild(menuFragment);
+    }
+
+    renderMenu(menuItems);
+</script>
+<script>
+    const foodItems = [
+        {
+            name: 'Hot Dog',
+            price: 4.0,
+        },{
+            name: 'Soda',
+            price: 3.5,
+        },{
+            name: 'Fries',
+            price: 1.5,
+        },{
+            name: 'Sauerkraut',
+            price: 1.0,
+        },
+    ];
+
+    function createFoodItemsIterator(items) {
+        let currentIndex = 0;
+
+        return {
+            next() {
+                if (currentIndex < items.length) {
+                    return {
+                        value: items[currentIndex++],
+                        done: false
+                    };
+                }
+
+                return {
+                    value: undefined,
+                    done: true
+                };
+            }
+        };
+    }
+
+    function createFoodItemsMenu() {
+        const existingMenu = document.getElementById('SecondFoodMenu');
+
+        if (existingMenu) {
+            return existingMenu;
+        }
+
+        const menuHeading = document.createElement('h2');
+        const secondMenu = document.createElement('menu');
+        const firstMenu = document.getElementById('FoodMenu');
+
+        menuHeading.textContent = 'Food Items Array Menu';
+        secondMenu.id = 'SecondFoodMenu';
+
+        firstMenu.insertAdjacentElement('afterend', menuHeading);
+        menuHeading.insertAdjacentElement('afterend', secondMenu);
+
+        return secondMenu;
+    }
+
+    function renderFoodItemsMenu(items) {
+        const secondMenu = createFoodItemsMenu();
+        const menuFragment = document.createDocumentFragment();
+        const foodItemsIterator = createFoodItemsIterator(items);
+        let currentFoodItem = foodItemsIterator.next();
+
+        secondMenu.innerHTML = '';
+
+        while (!currentFoodItem.done) {
+            const itemElement = document.createElement('li');
+            const { name, price } = currentFoodItem.value;
+
+            itemElement.textContent = `${name} - $${price.toFixed(2)}`;
+            menuFragment.appendChild(itemElement);
+            currentFoodItem = foodItemsIterator.next();
+        }
+
+        secondMenu.appendChild(menuFragment);
+    }
+
+    renderFoodItemsMenu(foodItems);
+</script>
+<script>
+    function ThirdMenuFoodItem(itemName, itemPrice) {
+        this.name = itemName;
+        this.price = itemPrice;
+    }
+
+    const thirdMenuItems = [
+        new ThirdMenuFoodItem('Hot Dog', 4.0),
+        new ThirdMenuFoodItem('Soda', 3.5),
+        new ThirdMenuFoodItem('Fries', 1.5),
+        new ThirdMenuFoodItem('Sauerkraut', 1.0)
+    ];
+
+    const thirdFoodMenu = document.getElementById('ThirdFoodMenu');
+
+    function renderThirdFoodMenu(items) {
+        //https://developer.mozilla.org/en-US/docs/Web/API/Document/createDocumentFragment
+        //createFragment is supposed to be safer than innerHTML
+        const thirdMenuFragment = document.createDocumentFragment();
+
+        thirdFoodMenu.innerHTML = '';
+
+        items.forEach((menuItemInstance) => {
+            const thirdMenuItemElement = document.createElement('li');
+
+            thirdMenuItemElement.textContent = `${menuItemInstance.name} - $${menuItemInstance.price.toFixed(2)}`;
+            thirdMenuFragment.appendChild(thirdMenuItemElement);
+        });
+
+        thirdFoodMenu.appendChild(thirdMenuFragment);
+    }
+
+    renderThirdFoodMenu(thirdMenuItems);
 </script>
 </body>
 </html>
